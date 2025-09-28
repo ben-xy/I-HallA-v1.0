@@ -88,4 +88,4 @@ class CatAgent:
                 "spatial": spatial,
                 "termporal": termporal,
             })
-        utils.save_result(f"GPT4o_output_{self.category}_cat.xlsx", self.results)
+        save_result(f"GPT4o_output_{self.category}_cat.xlsx", self.results)

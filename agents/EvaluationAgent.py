@@ -7,7 +7,7 @@ import base64
 import pandas as pd
 import requests
 import os
-from run import DEBUG_LIMIT, DEBUG_MODE
+from run import DEBUG_EVAL_LIMIT, DEBUG_MODE, EVAL_MODE, EVAL_TYPE
 from utils import ColoredText, load_image, load_text, save_result
 
 gpt_prompt = """
@@ -83,8 +83,8 @@ class EvaluationAgent:
         self.category = category
         self.results = []
         # self.coi_table = ["existence", "size", "color", "shape", "posture", "relation", "scene", "counting"]
-        self.model_version = "dalle-3" # "dalle-3", "sd-v1-4", "sd-v1-5", "sd-v2-0", "sd-xl"
-        self.image_type = "weird" # "normal/weird"
+        self.model_version = EVAL_MODE
+        self.image_type = EVAL_TYPE
         self.file_image_directory = f"data/models/{self.model_version}/{self.category}/{self.image_type}"
         self.file_qas_directory= f"data/GPT4o_QA_{self.category}_mod_cois.xlsx"
         
@@ -135,8 +135,6 @@ class EvaluationAgent:
         images = load_image(self.file_image_directory)
 
         print(ColoredText.color_text(f"Start to evaluate {len(images)} images...", ColoredText.YELLOW))
-        # if DEBUG_MODE:
-        #     print(f"data_indices: {data_indices}, qas_cois: {qas_cois}, qas_questions: {qas_questions}, qas_choices: {qas_choices}, qas_answers: {qas_answers}")
 
         target_index = 100 # Total number of data
         tot_score = 0
@@ -180,11 +178,11 @@ class EvaluationAgent:
                 else:
                     print(ColoredText.color_text("Wrong", ColoredText.RED))
 
-                if (executed_count := executed_count + 1) >= DEBUG_LIMIT:
+                if (executed_count := executed_count + 1) >= DEBUG_EVAL_LIMIT:
                     print(f"Quit after {executed_count} image test in debug mode")
                     break
 
-        print("score:", tot_score / (5 * target_index)) # (5 * len(target_index)))
+        print("Score:", tot_score / (5 * target_index)) # (5 * len(target_index)))
         self.results.append({
             "model_version": "",
             "data_index": "",

@@ -24,9 +24,12 @@ setup_env(REQUIRED_ENV_VARS)
 
 OPENAI_API_KEY = get_env_var("OPENAI_API_KEY", "NOT_SET")
 DEBUG_MODE = get_env_var("DEBUG_MODE", "False").lower() in ("true", "1", "t")
-DEBUG_LIMIT = int(get_env_var("DEBUG_LIMIT", 1))
+DEBUG_EVAL_LIMIT = int(get_env_var("DEBUG_EVAL_LIMIT", 1))
+EVAL_MODE = get_env_var("EVAL_MODE", "dalle-3")
+EVAL_TYPE = get_env_var("EVAL_TYPE", "weird")
 if DEBUG_MODE:
-    print("Debug mode is ON. DEBUG_LIMIT=", DEBUG_LIMIT, "OPENAI_API_KEY=", OPENAI_API_KEY)
+    masked_api_key = "NOT_SET" if OPENAI_API_KEY == "NOT_SET" else OPENAI_API_KEY[:7] + "***"
+    print(f"Debug mode is ON. DEBUG_EVAL_LIMIT={DEBUG_EVAL_LIMIT}, EVAL_MODE={EVAL_MODE}, EVAL_TYPE={EVAL_TYPE}, OPENAI_API_KEY={masked_api_key}")
 
 AGENTS = [
     "ImageAgent",
