@@ -3,12 +3,36 @@
 # Date: 2024-12-18                                          #
 #############################################################
 
-
+from getpass import getpass
 import importlib
 import argparse
+import os
 
-AGENTS = ["ImageAgent", "CaptionAgent", "CatAgent", "QAAgent", "EvaluationAgent", "InstructionAgent", "CoIAgent"]
-YOUR_API_KEY = "[YOUR_API_KEY]"
+from dotenv import load_dotenv
+
+# Environment variable setup
+def setup_env(required_vars):
+    load_dotenv()
+    for var in required_vars:
+        if not os.environ.get(var):
+            os.environ[var] = getpass(f"{var}: ")
+
+def get_env_var(var_name, default=None):
+    return os.environ.get(var_name, default)
+
+REQUIRED_ENV_VARS = ["OPENAI_API_KEY"]
+setup_env(REQUIRED_ENV_VARS)
+
+OPENAI_API_KEY = get_env_var("OPENAI_API_KEY", "NOT_SET")
+AGENTS = [
+    "ImageAgent",
+    "CaptionAgent",
+    "CatAgent",
+    "QAAgent",
+    "EvaluationAgent",
+    "InstructionAgent",
+    "CoIAgent",
+]
 
 def import_agent(agent_name):
     try:
@@ -27,7 +51,7 @@ if __name__ == "__main__":
     agent_class = import_agent(args.agent_name)
 
     if agent_class is not None:
-        agent_instance = agent_class(YOUR_API_KEY, args.category)
+        agent_instance = agent_class(OPENAI_API_KEY, args.category)
         agent_instance.run()
     else:
         print(f"{args.agent_name} could not be imported or instantiated.")
