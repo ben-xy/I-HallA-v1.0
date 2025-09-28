@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from utils import ColoredText, load_text
 import re
+import utils
 
 gpt_prompt = """
 Your Role: Composition of Interest Generator
@@ -172,5 +173,4 @@ class CoIAgent:
                 "choices": choices.strip(),
                 "answer": answer.strip()
             })
-        df = pd.DataFrame(results)
-        df.to_excel(f"0812_history_CoIs.xlsx", index=False)
+        utils.save_result(f"0812_history_CoIs.xlsx", self.results)

@@ -4,8 +4,10 @@
 #############################################################
 
 import base64
+from email import utils
 import pandas as pd
 import requests
+import os
 from utils import ColoredText, load_image, load_text
 
 gpt_prompt = """
@@ -81,7 +83,7 @@ class EvaluationAgent:
         self.category = category
         self.results = []
         # self.coi_table = ["existence", "size", "color", "shape", "posture", "relation", "scene", "counting"]
-        self.model_version = "sd-v1-4" # "dalle-3", "sd-v1-4", "sd-v1-5", "sd-v2-0", "sd-xl"
+        self.model_version = "dalle-3" # "dalle-3", "sd-v1-4", "sd-v1-5", "sd-v2-0", "sd-xl"
         self.image_type = "weird" # "normal/weird"
         self.file_image_directory = f"data/models/{self.model_version}/{self.category}/{self.image_type}"
         self.file_qas_directory= f"data/GPT4o_QA_{self.category}_mod_cois.xlsx"
@@ -126,12 +128,12 @@ class EvaluationAgent:
         return answer
         
     def run(self):
-        print(ColoredText.color_text("Loading images and captions..", ColoredText.YELLOW))
+        print(ColoredText.color_text(f"Loading images and captions... qas: {self.file_qas_directory}, images: {self.file_image_directory}", ColoredText.YELLOW))
         qas = load_text(self.file_qas_directory)
         data_indices, qas_cois, qas_questions, qas_choices, qas_answers = qas['Sheet1'].iloc[:, 0], qas['Sheet1'].iloc[:, 1], qas['Sheet1'].iloc[:, 2], qas['Sheet1'].iloc[:, 3], qas['Sheet1'].iloc[:, 4]
         images = load_image(self.file_image_directory)
 
-        print(ColoredText.color_text("Processing results..", ColoredText.YELLOW))
+        print(ColoredText.color_text("Processing results...", ColoredText.YELLOW))
 
         target_index = 100 # Total number of data
         tot_score = 0
@@ -181,6 +183,4 @@ class EvaluationAgent:
             "full_answer": "",
             "score": tot_score / (5 * target_index),
         })
-        df = pd.DataFrame(self.results)
-        df.to_excel(f"score_{self.category}_{self.model_version}_{self.image_type}-rough.xlsx", index=False)
-        
+        utils.save_result(f"score_{self.category}_{self.model_version}_{self.image_type}-rough.xlsx", self.results)

@@ -7,6 +7,7 @@ import pandas as pd
 import requests
 from utils import ColoredText, load_text
 import re
+import utils
 
 gpt_prompt = """
 Your Role: Questions and Answers Generator
@@ -166,8 +167,7 @@ class QAAgent:
                     "choices": choice.strip(),
                     "answer": answer.strip()
                 })
-        df = pd.DataFrame(results)
-        df.to_excel(f"GPT4o_QA_{self.category}_mod_cois.xlsx", index=False)
+        utils.save_result(f"GPT4o_QA_{self.category}_mod_cois.xlsx", self.results)
 
 if __name__ == "__main__":
     category = "history"

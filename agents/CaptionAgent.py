@@ -8,6 +8,8 @@ import requests
 from utils import ColoredText, load_text
 import os
 
+import utils
+
 gpt_prompt = """
 Your Role: Excellent Caption Analyst
 
@@ -99,5 +101,4 @@ class CaptionAgent:
                 "data_index": data_index,
                 "reasoning": reasoning,
             })
-        df = pd.DataFrame(self.results)
-        df.to_excel(f"GPT4o_output_{self.category}_cap.xlsx", index=False)
+        utils.save_result(f"GPT4o_output_{self.category}_cap.xlsx", self.results)

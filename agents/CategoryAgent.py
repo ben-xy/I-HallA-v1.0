@@ -8,6 +8,8 @@ import requests
 from utils import ColoredText, load_text
 import os
 
+import utils
+
 gpt_prompt = """
 Your Role: History Categorization Expert
 
@@ -88,5 +90,4 @@ class CatAgent:
                 "spatial": spatial,
                 "termporal": termporal,
             })
-        df = pd.DataFrame(self.results)
-        df.to_excel(f"GPT4o_output_{self.category}_cat.xlsx", index=False)
+        utils.save_result(f"GPT4o_output_{self.category}_cat.xlsx", self.results)
