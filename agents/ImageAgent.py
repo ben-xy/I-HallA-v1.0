@@ -6,8 +6,7 @@
 import base64
 import pandas as pd
 import requests
-from utils import ColoredText, load_image, load_text
-import utils
+from utils import ColoredText, load_image, load_text, save_result
 from .fewshot import fewshot_captions, fewshot_responses, fewshot_reasonings
 from agents.ReasoningAgent import ReasoningAgent
 
@@ -231,5 +230,5 @@ class ImageAgent:
                 "candidate_reasonings_correct": candidate_reasonings_correct,
                 "candidate_reasonings_wrong": candidate_reasonings_wrong,
             })
-        utils.save_result(f"GPT4o_output_{self.category}_img.xlsx", self.results)
+        save_result(f"GPT4o_output_{self.category}_img.xlsx", self.results)
         

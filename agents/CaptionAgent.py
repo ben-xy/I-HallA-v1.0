@@ -5,10 +5,8 @@
 
 import pandas as pd
 import requests
-from utils import ColoredText, load_text
+from utils import ColoredText, load_text, save_result
 import os
-
-import utils
 
 gpt_prompt = """
 Your Role: Excellent Caption Analyst
@@ -101,4 +99,4 @@ class CaptionAgent:
                 "data_index": data_index,
                 "reasoning": reasoning,
             })
-        utils.save_result(f"GPT4o_output_{self.category}_cap.xlsx", self.results)
+        save_result(f"GPT4o_output_{self.category}_cap.xlsx", self.results)

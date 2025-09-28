@@ -4,11 +4,10 @@
 #############################################################
 
 from getpass import getpass
+from dotenv import load_dotenv
 import importlib
 import argparse
 import os
-
-from dotenv import load_dotenv
 
 # Environment variable setup
 def setup_env(required_vars):
@@ -24,6 +23,11 @@ REQUIRED_ENV_VARS = ["OPENAI_API_KEY"]
 setup_env(REQUIRED_ENV_VARS)
 
 OPENAI_API_KEY = get_env_var("OPENAI_API_KEY", "NOT_SET")
+DEBUG_MODE = get_env_var("DEBUG_MODE", "False").lower() in ("true", "1", "t")
+DEBUG_LIMIT = int(get_env_var("DEBUG_LIMIT", 1))
+if DEBUG_MODE:
+    print("Debug mode is ON. DEBUG_LIMIT=", DEBUG_LIMIT, "OPENAI_API_KEY=", OPENAI_API_KEY)
+
 AGENTS = [
     "ImageAgent",
     "CaptionAgent",

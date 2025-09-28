@@ -32,6 +32,7 @@ def save_result(filename, results):
     output_directory = "eval_result"
     os.makedirs(output_directory, exist_ok=True)
     df = pd.DataFrame(results)
+    print(f"Saving results to {output_directory}/{filename}")
     df.to_excel(f"{output_directory}/{filename}", index=False)
 
 class ColoredText:

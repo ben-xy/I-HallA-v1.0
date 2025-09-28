@@ -4,11 +4,11 @@
 #############################################################
 
 import base64
-from email import utils
 import pandas as pd
 import requests
 import os
-from utils import ColoredText, load_image, load_text
+from run import DEBUG_LIMIT, DEBUG_MODE
+from utils import ColoredText, load_image, load_text, save_result
 
 gpt_prompt = """
 You are an agent who answers questions based on the given image.
@@ -110,6 +110,7 @@ class EvaluationAgent:
                 response = requests.post("https://api.openai.com/v1/chat/completions", 
                                         headers=self.headers, 
                                         json=self.payload)
+
                 content = response.json()['choices'][0]['message']['content']
 
                 if "Answer:" in content:
@@ -121,27 +122,31 @@ class EvaluationAgent:
                     break
             
             except Exception as e:
-                print(ColoredText.color_text("ERROR: " + str(e), ColoredText.RED))
+                print(ColoredText.color_text(f"ERROR: {str(e)}, response: {response}", ColoredText.RED))
 
-        print(ColoredText.color_text("["+answer+"]", ColoredText.BLUE))
+        print(ColoredText.color_text(f"[{answer}]", ColoredText.BLUE))
 
         return answer
         
     def run(self):
-        print(ColoredText.color_text(f"Loading images and captions... qas: {self.file_qas_directory}, images: {self.file_image_directory}", ColoredText.YELLOW))
+        print(ColoredText.color_text(f"Loading images and captions with qas: {self.file_qas_directory}, image folder: {self.file_image_directory}", ColoredText.YELLOW))
         qas = load_text(self.file_qas_directory)
         data_indices, qas_cois, qas_questions, qas_choices, qas_answers = qas['Sheet1'].iloc[:, 0], qas['Sheet1'].iloc[:, 1], qas['Sheet1'].iloc[:, 2], qas['Sheet1'].iloc[:, 3], qas['Sheet1'].iloc[:, 4]
         images = load_image(self.file_image_directory)
 
-        print(ColoredText.color_text("Processing results...", ColoredText.YELLOW))
+        print(ColoredText.color_text(f"Start to evaluate {len(images)} images...", ColoredText.YELLOW))
+        # if DEBUG_MODE:
+        #     print(f"data_indices: {data_indices}, qas_cois: {qas_cois}, qas_questions: {qas_questions}, qas_choices: {qas_choices}, qas_answers: {qas_answers}")
 
         target_index = 100 # Total number of data
         tot_score = 0
+        executed_count = 0
         for image_path in images:
             data_index = int(image_path.split('/')[-1].split('.')[0])
             
-            if data_index <= target_index:
+            if data_index <= target_index and not DEBUG_MODE:
                 continue
+
             print()
             image = self.encode_image(image_path)
             
@@ -149,6 +154,8 @@ class EvaluationAgent:
             for qas_data_index, coi, question, choices, answer in zip(data_indices, qas_cois, qas_questions, qas_choices, qas_answers):
                 if data_index != qas_data_index:
                     continue
+                if DEBUG_MODE:
+                    print(f"Send request to evaluate with Question: {question}, Choices: {choices}")
                 _answer = self.query(image, question, choices)
                 if answer[0].lower() == _answer[0].lower():
                     score += 1
@@ -166,11 +173,16 @@ class EvaluationAgent:
 
             tot_score += score
 
-            # if score == 5:
-            #     tot_score += 1
-            #     print(ColoredText.color_text("Correct", ColoredText.GREEN))
-            # else:
-            #     print(ColoredText.color_text("Wrong", ColoredText.RED))
+            if DEBUG_MODE:
+                if score == 5:
+                    tot_score += 1
+                    print(ColoredText.color_text("Correct", ColoredText.GREEN))
+                else:
+                    print(ColoredText.color_text("Wrong", ColoredText.RED))
+
+                if (executed_count := executed_count + 1) >= DEBUG_LIMIT:
+                    print(f"Quit after {executed_count} image test in debug mode")
+                    break
 
         print("score:", tot_score / (5 * target_index)) # (5 * len(target_index)))
         self.results.append({
@@ -183,4 +195,4 @@ class EvaluationAgent:
             "full_answer": "",
             "score": tot_score / (5 * target_index),
         })
-        utils.save_result(f"score_{self.category}_{self.model_version}_{self.image_type}-rough.xlsx", self.results)
+        save_result(f"score_{self.category}_{self.model_version}_{self.image_type}-rough.xlsx", self.results)

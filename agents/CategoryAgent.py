@@ -5,10 +5,8 @@
 
 import pandas as pd
 import requests
-from utils import ColoredText, load_text
+from utils import ColoredText, load_text, save_result
 import os
-
-import utils
 
 gpt_prompt = """
 Your Role: History Categorization Expert
