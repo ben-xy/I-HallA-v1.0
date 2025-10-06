@@ -5,7 +5,7 @@
 
 import pandas as pd
 import requests
-from utils import ColoredText, load_text
+from utils import ColoredText, load_text, save_result
 import re
 
 gpt_prompt = """
@@ -166,8 +166,7 @@ class QAAgent:
                     "choices": choice.strip(),
                     "answer": answer.strip()
                 })
-        df = pd.DataFrame(results)
-        df.to_excel(f"GPT4o_QA_{self.category}_mod_cois.xlsx", index=False)
+        save_result(f"GPT4o_QA_{self.category}_mod_cois.xlsx", self.results)
 
 if __name__ == "__main__":
     category = "history"

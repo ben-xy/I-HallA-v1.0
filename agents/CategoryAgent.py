@@ -5,7 +5,7 @@
 
 import pandas as pd
 import requests
-from utils import ColoredText, load_text
+from utils import ColoredText, load_text, save_result
 import os
 
 gpt_prompt = """
@@ -88,5 +88,4 @@ class CatAgent:
                 "spatial": spatial,
                 "termporal": termporal,
             })
-        df = pd.DataFrame(self.results)
-        df.to_excel(f"GPT4o_output_{self.category}_cat.xlsx", index=False)
+        save_result(f"GPT4o_output_{self.category}_cat.xlsx", self.results)

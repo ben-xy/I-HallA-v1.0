@@ -5,7 +5,7 @@
 
 import pandas as pd
 import requests
-from utils import ColoredText, load_text
+from utils import ColoredText, load_text, save_result
 import os
 
 gpt_prompt = """
@@ -99,5 +99,4 @@ class CaptionAgent:
                 "data_index": data_index,
                 "reasoning": reasoning,
             })
-        df = pd.DataFrame(self.results)
-        df.to_excel(f"GPT4o_output_{self.category}_cap.xlsx", index=False)
+        save_result(f"GPT4o_output_{self.category}_cap.xlsx", self.results)

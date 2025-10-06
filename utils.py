@@ -28,6 +28,13 @@ def load_text(file_path):
         print(ColoredText.color_text("File not found:" + file_path, ColoredText.RED))
         sys.exit()
 
+def save_result(filename, results):
+    output_directory = "eval_result"
+    os.makedirs(output_directory, exist_ok=True)
+    df = pd.DataFrame(results)
+    print(ColoredText.color_text(f"Saving results to {output_directory}/{filename}", ColoredText.YELLOW))
+    df.to_excel(f"{output_directory}/{filename}", index=False)
+
 class ColoredText:
     RED = '\033[91m'
     GREEN = '\033[92m'
