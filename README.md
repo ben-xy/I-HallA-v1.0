@@ -1,42 +1,4 @@
-<h2 align="center">
-    Evaluating Image Hallucination in Text-to-Image Generation with Question-Answering
-</h2>
-<h5 align="center">
-    Youngsun Lim<sup> *</sup>, Hojun Choi<sup> *</sup>, Hyunjung Shim<br>
-    (* indicates equal contributions)<br>
-    Graduate School of Artificial Intelligence, KAIST, Republic of Korea<br>
-    <code>{youngsun_ai, hchoi256, kateshim}@kaist.ac.kr</code><br>
-    This is the official implementation of I-HallA v1.0.<br>
-    <!-- <a href="https://arxiv.org/pdf/2203.11876.pdf">arXiv</a> |
-    <a href="https://www.mmlab-ntu.com/project/ovdetr/index.html">Project Page</a> |
-    <a href="https://github.com/yuhangzang/OV-DETR">Code</a> -->
-</h5>
-
-<h4 align="center">
-
-[![arXiv](https://img.shields.io/badge/arXiv-2406.11384-b31b1b.svg)](https://arxiv.org/abs/2409.12784)
-[![AAAI](https://img.shields.io/badge/AAAI-2025-ffde21.svg)](https://openreview.net/forum?id=RPsdiVnG9C)
-
-
-<div align="center">
-    <!-- <img src="assets/part_clipseg_teaser.png" alt="drawing" height="200em"/> -->
-    <img src="assets/teaser.png" alt="drawing" width="100%"/>
-    <!-- <img src="assets/part_clipseg_teaser.png" alt="drawing" /> -->
-</div>
-
-
-
-<!-- This is the official implementation of I-HallA-v1.0. -->
-
-</h4>
-
----
-
-<!-- ## Evaluating Image Hallucination in Text-to-Image Generation with Question-Answering -->
-
-<br/>
-
-### I-HallA-v1.0
+# I-HallA-Plus
 Despite the huge success of text-to-image (TTI) generation models, existing studies seldom consider whether generated images accurately represent factual information. In this paper, we define the problem of image hallucination as the generated images fail to accurately depict factual information. To address this, we introduce I-HallA (Image Hallucination evaluation with Question Answering), an automatic evaluation metric that measures the factuality of generated images through visual question answering (VQA), and I-HallA v1.0, a curated benchmark dataset. We develop a three-stage pipeline that generates curated question-answer pairs using multiple GPT-4 Omni-based agents with human judgments. Our evaluation protocols measure image hallucination by testing if images from existing text-to-image models can correctly answer these questions. The I-HallA v1.0 dataset comprises 1.2K diverse image-text pairs across 9 categories with varying levels of difficulty and 1,000 questions covering 9 compositions. We evaluate 5 different text-to-image models using I-HallA and demonstrate that these state-of-the-art models often fail to accurately convey factual information. Additionally, we establish the validity of our evaluation method through human evaluation, yielding a Spearman's correlation of 0.95. We believe our benchmark dataset and metric can serve as a foundation for developing factually accurate text-to-image generation models.
 
 <div align="center">
@@ -45,39 +7,14 @@ Despite the huge success of text-to-image (TTI) generation models, existing stud
     <img src="assets/exp.png" alt="drawing" width="100%"/>
     <img src="assets/human_eval.png" alt="drawing" width="65%"/>
 </div>
-
-<br/>
-
-### Updates
-
-- [✅] [2025.01.18] 🎁 Our paper has been selected for **oral presentation** [AAAI 2025](https://openreview.net/group?id=AAAI.org/2025/Conference#tab-accept)!
-- [✅] [2024.12.16] 👨‍💻 The official codes have been released!
-- [✅] [2024.12.10] 🎉 Our paper has been accepted to [AAAI 2025](https://openreview.net/group?id=AAAI.org/2025/Conference#tab-accept)!
-- [✅] [2024.09.19] 📄 Our paper is now available! You can find the paper [here](https://arxiv.org/abs/2409.12784).
-
-
-
 <br/>
 
 
 ### Quick Links
-- [Installation](#Installation)
 - [Data Preparation](#data-preparation)
 - [Quick Start](#quick-start)
 - [I-HallA v1.0 Benchmark](#tifa-v10-benchmark)
 - [VQA modules](#vqa-modules)
-
----
-
-## Installation
-
-Clone and build the repo:
-```bash
-git clone https://github.com/hchoi256/I-HallA-v1.0.git
-cd I-HallA-v1.0
-pip install -r requirements.txt
-```
-
 ---
 
 ## Data Preparation (We have included links to each of our benchmark datasets.)
@@ -132,52 +69,51 @@ data/
 
 ## Quick Start
 The following is a quick start guide for evaluating the Image Hallucination scores of five different TTI generation models.
-Our method requires the GPT-4o API for evaluation.
+The evaluation results will be saved in the `eval_results/` directory.
+
+```text
+project/
+├── .env
+├── data/
+├── eval_results/
+```
 
 ### Steps:
 
-1. **Enter your API_KEY in `run.py`:**
+1. **Enter your API_KEY in `.env`:**
 
-    ```python
-    YOUR_API_KEY = "[YOUR_API_KEY]"
+    ```
+    OPENAI_API_KEY = "[YOUR_API_KEY]"
     ```
 
-2. **Specify the type of TTI generation model to evaluate in `EvaluationAgent.py`:**
+2. **Specify the type of TTI generation model to evaluate in `.env`:**
 
-    ```python
-    payload = {
-        "model": "[YOUR_MODEL]",
-        "messages": [
-        {
-            "role": "user",
-            "content": [
-            {
-                "type": "text",
-                "text": ""
-            },
-            ]
-        }
-        ],
-    }
     ```
-
-    ```python
-    self.model_version = "YOUR_TTI_MODEL"  # Options: "dalle-3", "sd-v1-4", "sd-v1-5", "sd-v2-0", "sd-xl"
-    self.image_type = "weird"
+    EVAL_MODE = "YOUR_TTI_MODEL"  # Options: "dalle-3", "sd-v1-4", "sd-v1-5", "sd-v2-0", "sd-xl"
+    EVAL_TYPE = "normal"    # Options: normal or weird
     ```
-
+    
     To evaluate factual images collected from textbooks, use the following settings:
 
-    ```python
-    self.model_version = "dalle-3"
-    self.image_type = "normal"
+    ```
+    EVAL_MODE = "dalle-3"
+    EVAL_TYPE = "normal"
+    ```
+3. **Debug mode**
+    ```
+    DEBUG_MODE=True
+    DEBUG_EVAL_LIMIT=1
     ```
 
-3. **Choose a `<CATEGORY>` to evaluate in `run.py` and execute the following command:**
+4. **Choose a `<CATEGORY>` to evaluate in `run.py` and execute the following command:**
 
     ```bash
     python run.py --category <CATEGORY> --agent_name EvaluationAgent
-    ``` 
+
+    Examples:
+    python run.py --category history --agent_name EvaluationAgent
+    python run.py --category science --agent_name EvaluationAgent
+    ```
 
 ### Evaluating on any TTI models
 In addition to the five TTI generation models we evaluated, our benchmark also supports the evaluation of other TTI models.  
@@ -241,24 +177,3 @@ You can also **customize your own VQA models** by creating a file in the `vlms/<
    ```
 
 Replace `<VQA_MODEL>` with the name of your desired VQA model, such as `blip2`, `instructblip`, and `llava2`.
-
----
-
-## Citation
-If you find our work helpful, please cite us:
-
-```bibtex
-@article{ihalla,
-  author       = {Youngsun Lim and
-                  Hojun Choi and
-                  Hyunjung Shim},
-  title        = {Evaluating Image Hallucination in Text-to-Image Generation with Question-Answering},
-  conference   = {AAAI},
-  year         = {2025},
-}
-```
-
-
-### Acknowledgement
-
-We would like to sincerely thank their contributors, including [GPT-4o](https://openai.com/index/hello-gpt-4o/), for their invaluable contributions.
