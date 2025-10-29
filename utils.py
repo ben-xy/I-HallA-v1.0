@@ -11,7 +11,7 @@ def load_image(file_path):
     image_filenames = []
     for root, dirs, files in os.walk(file_path):
         for filename in files:
-            if filename.lower().endswith(".jpg"):  
+            if filename.lower().endswith((".jpg", ".png", ".jpeg")):  
                 image_path = f"{root}/{filename}"
                 image_filenames.append(image_path)
     return image_filenames
