@@ -27,6 +27,7 @@ DEBUG_MODE = get_env_var("DEBUG_MODE", "False").lower() in ("true", "1", "t")
 DEBUG_EVAL_LIMIT = int(get_env_var("DEBUG_EVAL_LIMIT", 1))
 EVAL_MODE = get_env_var("EVAL_MODE", "dalle-3")
 EVAL_TYPE = get_env_var("EVAL_TYPE", "weird")
+LLM_VERSION = get_env_var("LLM_VERSION", "gpt-4o")
 if DEBUG_MODE:
     masked_api_key = "NOT_SET" if OPENAI_API_KEY == "NOT_SET" else OPENAI_API_KEY[:7] + "***"
     print(f"Debug mode is ON. DEBUG_EVAL_LIMIT={DEBUG_EVAL_LIMIT}, EVAL_MODE={EVAL_MODE}, EVAL_TYPE={EVAL_TYPE}, OPENAI_API_KEY={masked_api_key}")

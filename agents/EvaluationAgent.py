@@ -7,7 +7,7 @@ import base64
 import pandas as pd
 import requests
 import os
-from run import DEBUG_EVAL_LIMIT, DEBUG_MODE, EVAL_MODE, EVAL_TYPE
+from run import DEBUG_EVAL_LIMIT, DEBUG_MODE, EVAL_MODE, EVAL_TYPE, LLM_VERSION
 from utils import ColoredText, load_image, load_text, save_result
 
 gpt_prompt = """
@@ -60,7 +60,7 @@ class EvaluationAgent:
             "Authorization": f"Bearer {api_key}"
         }
         self.payload = {
-            "model": "gpt-4o",
+            "model": LLM_VERSION,
             "messages": [
             {
                 "role": "user",
@@ -86,7 +86,7 @@ class EvaluationAgent:
         self.model_version = EVAL_MODE
         self.image_type = EVAL_TYPE
         self.file_image_directory = f"data/models/{self.model_version}/{self.category}/{self.image_type}"
-        self.file_qas_directory= f"data/GPT4o_QA_{self.category}_mod_cois.xlsx"
+        self.file_qas_directory= f"data/{LLM_VERSION}_QA_{self.category}_mod_cois.xlsx"
         
     def encode_image(self, image_path):
         with open(image_path, "rb") as image_file:
@@ -149,11 +149,15 @@ class EvaluationAgent:
             image = self.encode_image(image_path)
             
             score = 0
+            question_count = 0
+            question_total = sum(1 for idx in data_indices if idx == data_index)
+            print(f"Ask {LLM_VERSION} to evaluate with {question_total} questions(data index={data_index}) for image: {image_path}\n")
             for qas_data_index, coi, question, choices, answer in zip(data_indices, qas_cois, qas_questions, qas_choices, qas_answers):
                 if data_index != qas_data_index:
                     continue
+                question_count += 1
                 if DEBUG_MODE:
-                    print(f"Send request to evaluate with Question: {question}, Choices: {choices}")
+                    print(f"Send request to evaluate with Question {question_count}:\n{question}\nChoices:\n{choices}")
                 _answer = self.query(image, question, choices)
                 if answer[0].lower() == _answer[0].lower():
                     score += 1
@@ -172,14 +176,14 @@ class EvaluationAgent:
             tot_score += score
 
             if DEBUG_MODE:
-                if score == 5:
+                if score == 5: # all correct
                     tot_score += 1
-                    print(ColoredText.color_text("Correct", ColoredText.GREEN))
-                else:
-                    print(ColoredText.color_text("Wrong", ColoredText.RED))
+                    print(ColoredText.color_text("All Correct", ColoredText.GREEN))
+                else: # some wrong
+                    print(ColoredText.color_text("Some Wrong", ColoredText.RED))
 
                 if (executed_count := executed_count + 1) >= DEBUG_EVAL_LIMIT:
-                    print(f"Quit after {executed_count} image test in debug mode")
+                    print(ColoredText.color_text(f"Quit after {executed_count} image test in debug mode", ColoredText.YELLOW))
                     break
 
         print("Score:", tot_score / (5 * target_index)) # (5 * len(target_index)))
@@ -193,4 +197,4 @@ class EvaluationAgent:
             "full_answer": "",
             "score": tot_score / (5 * target_index),
         })
-        save_result(f"score_{self.category}_{self.model_version}_{self.image_type}-rough.xlsx", self.results)
+        save_result(f"score_{self.category}_{self.model_version}_{self.image_type}_{LLM_VERSION}.xlsx", self.results)
