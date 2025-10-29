@@ -197,4 +197,4 @@ class EvaluationAgent:
             "full_answer": "",
             "score": tot_score / (5 * target_index),
         })
-        save_result(f"score_{self.category}_{self.model_version}_{self.image_type}_{LLM_VERSION}-rough.xlsx", self.results)
+        save_result(f"score_{self.category}_{self.model_version}_{self.image_type}_{LLM_VERSION}.xlsx", self.results)
